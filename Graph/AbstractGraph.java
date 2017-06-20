@@ -17,14 +17,33 @@ public abstract class AbstractGraph<V> implements Graph<V> {
 
     protected AbstractGraph(V[] vertices, int[][] edges) {
         for (int i = 0; i < vertices.length; i++) {
-            addVertices(vertices[i]);
+            addVertex(vertices[i]);
+        }
+        createAdjacencyLists(edges, vertices.length);
+    }
+
+    protected AbstractGraph(List<V> vertices, List<Edge> edges) {
+        for (int i = 0; i < vertices.size(); i++) {
+            addVertex(vertices.get(i));
         }
         createAdjacencyLists(edges, vertices.size());
     }
 
-    //TODO: add more constructor
+    protected AbstractGraph(List<Edge> edges, int numberOfVertices) {
+        for (int i = 0; i < numberOfVertices; i++) {
+            addVertex((V)(new Integer(i)));
+        }
+        createAdjacencyLists(edges, numberOfVertices);
+    }
 
-    private void createAdjacnecyLists(int[][] edges, int numOfVertices) {
+    protected AbstractGraph(int[][] edges, int numberOfVertices) {
+        for (int i = 0; i < numberOfVertices; i++) {
+            addVertex((V)(new Integer(i)));
+        }
+        createAdjacencyLists(edges, numberOfVertices);
+    }
+
+    private void createAdjacencyLists(int[][] edges, int numOfVertices) {
         for (int i = 0; i < edges.length; i++) {
             addEdge(edges[i][0], edges[i][1]);
         }
@@ -138,7 +157,31 @@ public abstract class AbstractGraph<V> implements Graph<V> {
 
     @Override
     public Tree dfs(int v) {
-        
+        List<Integer> searchOrder = new ArrayList<>();
+        int[] parent = new int[vertices.size()];
+        for (int i = 0; i < parent.length; i++) {
+            parent[i] = -1;
+        }
+
+        boolean[] isVisited = new boolean[vertices.size()];
+
+        dfs(v, parent, searchOrder, isVisited);
+
+        return new Tree(v, parent, searchOrder);
+
+    }
+
+    private void dfs(int u, int[] parent, List<Integer> searchOrder, boolean[] isVisited) {
+        searchOrder.add(u);
+        isVisited[u] = true;
+
+        for (Edge e : neighbors.get(u)) {
+            if (!isVisited[e.v]) {
+                parent[e.v] = u;
+                dfs(e.v, parent, searchOrder, isVisited);
+            }
+        }
+
     }
 
     public class Tree {
@@ -191,6 +234,8 @@ public abstract class AbstractGraph<V> implements Graph<V> {
         }
 
     }
+
+
 
 
 }
